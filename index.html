@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - Dibayar.in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Phosphor Icons for modern slick icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for Controls -->
+        <aside class="controls-panel">
+            <div class="brand">
+                <img src="icon.svg" alt="Dibayar.in Logo" class="brand-logo">
+                <div>
+                    <h1>Dibayar.in</h1>
+                    <p>Invoice Generator</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="invoiceNo">No. Invoice</label>
+                <input type="text" id="invoiceNo" placeholder="INV-202X-001">
+            </div>
+
+            <div class="form-group">
+                <label for="invoiceDate">Tanggal Invoice</label>
+                <input type="date" id="invoiceDate">
+            </div>
+
+            <div class="form-group">
+                <label for="clientName">Nama Klien</label>
+                <input type="text" id="clientName" placeholder="Nama Klien / Perusahaan">
+            </div>
+
+            <div class="form-group">
+                <label for="clientEmail">Email Klien (Opsional)</label>
+                <input type="email" id="clientEmail" placeholder="klien@email.com">
+            </div>
+
+            <div class="items-section">
+                <div class="items-header">
+                    <h3>Item Tagihan</h3>
+                    <button class="btn-icon" id="addItemBtn" title="Tambah Item">
+                        <i class="ph ph-plus-circle"></i>
+                    </button>
+                </div>
+                <div id="itemsContainer" class="items-container">
+                    <!-- Dynamic items will be injected here -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="currency">Mata Uang</label>
+                <select id="currency">
+                    <option value="IDR">IDR (Rupiah)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Catatan Tambahan</label>
+                <textarea id="notes" rows="3" placeholder="Terima kasih atas kepercayaan Anda..."></textarea>
+            </div>
+
+            <button id="generatePdfBtn" class="btn-primary">
+                <i class="ph ph-download-simple"></i>
+                Generate & Download PDF
+            </button>
+        </aside>
+
+        <!-- Preview Panel -->
+        <main class="preview-panel">
+            <div class="preview-wrapper">
+                <div class="preview-header">
+                    <h2>Live Preview</h2>
+                </div>
+                
+                <div class="invoice-paper-container">
+                    <!-- This specific div will be converted to PDF -->
+                    <div id="invoiceContent" class="invoice-document">
+                        <!-- Header -->
+                        <header class="invoice-header">
+                            <div class="company-details">
+                                <img src="icon.svg" alt="Dibayar.in Logo" class="invoice-logo">
+                                <div class="company-info">
+                                    <h1 class="company-name">Dibayar.in</h1>
+                                    <p class="company-tagline">Jasa Bayar Internasional</p>
+                                    <p class="company-address">Jl. Kandea 2 No 28 Makassar</p>
+                                    <p class="company-web">Website: dibayar.in</p>
+                                </div>
+                            </div>
+                            <div class="invoice-title">
+                                <h2>INVOICE</h2>
+                                <p class="invoice-number" id="previewInvoiceNo">INV-000</p>
+                            </div>
+                        </header>
+
+                        <!-- Meta Info -->
+                        <div class="invoice-meta">
+                            <div class="bill-to">
+                                <h4>Tagihan Kepada:</h4>
+                                <p id="previewClientName" class="strong-text">Nama Klien</p>
+                                <p id="previewClientEmail">email@klien.com</p>
+                            </div>
+                            <div class="invoice-details">
+                                <div class="detail-row">
+                                    <span>Tanggal:</span>
+                                    <strong id="previewInvoiceDate">-</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Deskripsi Layanan / Item</th>
+                                    <th class="text-center">Jumlah</th>
+                                    <th class="text-right">Harga Satuan</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewItemsBody">
+                                <!-- Items injected here -->
+                            </tbody>
+                        </table>
+
+                        <!-- Summary -->
+                        <div class="invoice-summary">
+                            <div class="summary-notes">
+                                <h4>Catatan:</h4>
+                                <p id="previewNotes">Terima kasih atas kepercayaan Anda menggunakan layanan kami.</p>
+                            </div>
+                            <div class="summary-totals">
+                                <div class="total-row grand-total">
+                                    <span>Total Tagihan:</span>
+                                    <strong id="previewGrandTotal">Rp 0</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <footer class="invoice-footer">
+                            <p>Invoice ini sah dan diterbitkan secara elektronik oleh <strong>Dibayar.in</strong></p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Invoice berhasil di-download!</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
