@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Elements ---
     const invoiceNo = document.getElementById('invoiceNo');
     const invoiceDate = document.getElementById('invoiceDate');
+    const dueDate = document.getElementById('dueDate');
     const clientName = document.getElementById('clientName');
     const clientEmail = document.getElementById('clientEmail');
     const currency = document.getElementById('currency');
@@ -13,14 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preview Elements
     const previewInvoiceNo = document.getElementById('previewInvoiceNo');
     const previewInvoiceDate = document.getElementById('previewInvoiceDate');
+    const previewDueDate = document.getElementById('previewDueDate');
     const previewClientName = document.getElementById('previewClientName');
     const previewClientEmail = document.getElementById('previewClientEmail');
     const previewItemsBody = document.getElementById('previewItemsBody');
     const previewNotes = document.getElementById('previewNotes');
     const previewGrandTotal = document.getElementById('previewGrandTotal');
 
-    // Default Date to Today
+    // Default Date to Today, Due Date = 1 hari setelahnya
     invoiceDate.valueAsDate = new Date();
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dueDate.valueAsDate = tomorrow;
+
+    // Auto sync: jika invoiceDate berubah, due date ikut update +1 hari
+    invoiceDate.addEventListener('change', () => {
+        const d = new Date(invoiceDate.value);
+        d.setDate(d.getDate() + 1);
+        dueDate.valueAsDate = d;
+        updatePreview();
+    });
 
     // Auto Invoice Number based on year
     const currentYear = new Date().getFullYear();
@@ -93,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Meta Info
         previewInvoiceNo.textContent = invoiceNo.value || 'INV-000';
         previewInvoiceDate.textContent = formatDate(invoiceDate.value);
+        previewDueDate.textContent = formatDate(dueDate.value);
         previewClientName.textContent = clientName.value || 'Nama Klien';
         previewClientEmail.textContent = clientEmail.value || '';
         if (!clientEmail.value) {
@@ -126,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Input Listeners for Auto-Update Preview
-    [invoiceNo, invoiceDate, clientName, clientEmail, currency, notes].forEach(input => {
+    [invoiceNo, dueDate, clientName, clientEmail, currency, notes].forEach(input => {
         input.addEventListener('input', updatePreview);
     });
 

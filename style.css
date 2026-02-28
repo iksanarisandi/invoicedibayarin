@@ -449,17 +449,98 @@ textarea:focus {
     margin-bottom: 0;
 }
 
+/* Due Date highlight */
+.due-date-text {
+    color: #DC2626 !important;
+}
+
+/* Payment Section */
+.payment-section {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+    align-items: flex-start;
+}
+
+.payment-banks {
+    flex: 1;
+}
+
+.payment-qris {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.payment-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.payment-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+}
+
+.bank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.bank-item {
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+}
+
+.bank-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.bank-account {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: 1px;
+}
+
+.bank-holder {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.qris-img {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+}
+
 /* Footer */
 .invoice-footer {
-    position: absolute;
-    bottom: 20mm;
-    left: 20mm;
-    right: 20mm;
+    margin-top: 2rem;
     text-align: center;
     border-top: 1px solid var(--border);
     padding-top: 1rem;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 /* Toast */

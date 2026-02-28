@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- html2pdf library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- Phosphor Icons for modern slick icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar for Controls -->
@@ -33,6 +35,11 @@
             <div class="form-group">
                 <label for="invoiceDate">Tanggal Invoice</label>
                 <input type="date" id="invoiceDate">
+            </div>
+
+            <div class="form-group">
+                <label for="dueDate">Jatuh Tempo (Due Date)</label>
+                <input type="date" id="dueDate">
             </div>
 
             <div class="form-group">
@@ -83,7 +90,7 @@
                 <div class="preview-header">
                     <h2>Live Preview</h2>
                 </div>
-                
+
                 <div class="invoice-paper-container">
                     <!-- This specific div will be converted to PDF -->
                     <div id="invoiceContent" class="invoice-document">
@@ -95,7 +102,7 @@
                                     <h1 class="company-name">Dibayar.in</h1>
                                     <p class="company-tagline">Jasa Bayar Internasional</p>
                                     <p class="company-address">Jl. Kandea 2 No 28 Makassar</p>
-                                    <p class="company-web">Website: dibayar.in</p>
+                                    <p class="company-web">dibayar.in</p>
                                 </div>
                             </div>
                             <div class="invoice-title">
@@ -109,12 +116,16 @@
                             <div class="bill-to">
                                 <h4>Tagihan Kepada:</h4>
                                 <p id="previewClientName" class="strong-text">Nama Klien</p>
-                                <p id="previewClientEmail">email@klien.com</p>
+                                <p id="previewClientEmail"></p>
                             </div>
                             <div class="invoice-details">
                                 <div class="detail-row">
-                                    <span>Tanggal:</span>
+                                    <span>Tanggal Terbit:</span>
                                     <strong id="previewInvoiceDate">-</strong>
+                                </div>
+                                <div class="detail-row due-date-row">
+                                    <span>Jatuh Tempo:</span>
+                                    <strong id="previewDueDate" class="due-date-text">-</strong>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +145,7 @@
                             </tbody>
                         </table>
 
-                        <!-- Summary -->
+                        <!-- Summary & Totals -->
                         <div class="invoice-summary">
                             <div class="summary-notes">
                                 <h4>Catatan:</h4>
@@ -147,10 +158,41 @@
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- Payment Info Section -->
+                        <div class="payment-section">
+                            <div class="payment-banks">
+                                <h4 class="payment-title"><i class="ph ph-bank"></i> Informasi Pembayaran</h4>
+                                <p class="payment-subtitle">Transfer ke salah satu rekening berikut:</p>
+                                <div class="bank-list">
+                                    <div class="bank-item">
+                                        <div class="bank-name">🏦 BRI</div>
+                                        <div class="bank-account">489101027813530</div>
+                                        <div class="bank-holder">a.n. Iksan Arisandi</div>
+                                    </div>
+                                    <div class="bank-item">
+                                        <div class="bank-name">🏦 Mandiri</div>
+                                        <div class="bank-account">1010010414769</div>
+                                        <div class="bank-holder">a.n. Iksan Arisandi</div>
+                                    </div>
+                                    <div class="bank-item">
+                                        <div class="bank-name">🏦 Bank Jago</div>
+                                        <div class="bank-account">506987345702</div>
+                                        <div class="bank-holder">a.n. Iksan Arisandi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="payment-qris">
+                                <h4 class="payment-title"><i class="ph ph-qr-code"></i> QRIS</h4>
+                                <p class="payment-subtitle">Atau bayar dengan scan QRIS:</p>
+                                <img src="qris.JPG" alt="QRIS Dibayar.in" class="qris-img">
+                            </div>
+                        </div>
+
                         <!-- Footer -->
                         <footer class="invoice-footer">
-                            <p>Invoice ini sah dan diterbitkan secara elektronik oleh <strong>Dibayar.in</strong></p>
+                            <p>Invoice ini sah dan diterbitkan secara elektronik oleh <strong>Dibayar.in</strong>
+                                &nbsp;|&nbsp; dibayar.in</p>
                         </footer>
                     </div>
                 </div>
@@ -163,4 +205,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
