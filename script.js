@@ -69,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <input type="text" placeholder="Deskripsi" value="${item.desc}" class="item-desc" data-index="${index}">
+                <input type="text" placeholder="Deskripsi item..." value="${item.desc}" class="item-desc" data-index="${index}">
                 <input type="number" placeholder="Qty" value="${item.qty}" min="1" class="item-qty" data-index="${index}">
-                <input type="number" placeholder="Harga" value="${item.price}" min="0" class="item-price" data-index="${index}">
+                <input type="number" placeholder="Harga satuan" value="${item.price}" min="0" class="item-price" data-index="${index}">
                 <button class="btn-icon danger remove-item" data-index="${index}" title="Hapus Item">
-                    <i class="ph ph-trash"></i>
+                    <i class="ph ph-trash"></i> Hapus
                 </button>
             `;
             itemsContainer.appendChild(row);
