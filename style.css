@@ -174,10 +174,11 @@ textarea:focus {
 
 .item-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    /* Desktop: deskripsi & harga dapat ruang luas, qty sempit, hapus ikon-only */
+    grid-template-columns: minmax(0, 1.4fr) 62px minmax(0, 1.2fr) 44px;
     gap: 0.5rem;
     margin-bottom: 0.8rem;
-    align-items: flex-start;
+    align-items: center;
     animation: fadeIn 0.3s ease;
     padding-bottom: 0.8rem;
     border-bottom: 1px solid var(--border);
@@ -202,6 +203,30 @@ textarea:focus {
 
 .item-row input {
     width: 100%;
+    min-width: 0;
+}
+
+/* Tombol hapus: ikon saja di desktop (hemat ruang), label muncul di mobile */
+.remove-item {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: var(--danger);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.remove-item:hover {
+    background: #FEE2E2;
+    transform: scale(1.05);
+}
+
+.remove-item .remove-label {
+    display: none;
 }
 
 .btn-primary {
@@ -659,6 +684,7 @@ textarea:focus {
     .item-row .remove-item {
         grid-area: del;
         width: 100%;
+        height: auto;
         padding: 0.6rem;
         background: #FEF2F2;
         border: 1px solid #FECACA;
@@ -666,6 +692,11 @@ textarea:focus {
         font-size: 1rem;
         color: var(--danger);
         margin-top: 0.25rem;
+    }
+
+    /* Mobile: tampilkan kembali label "Hapus" pada tombol full-width */
+    .item-row .remove-item .remove-label {
+        display: inline;
     }
 
     .item-row .remove-item:hover {

@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="number" placeholder="Qty" value="${item.qty}" min="1" class="item-qty" data-index="${index}">
                 <input type="number" placeholder="Harga satuan" value="${item.price}" min="0" class="item-price" data-index="${index}">
                 <button class="btn-icon danger remove-item" data-index="${index}" title="Hapus Item">
-                    <i class="ph ph-trash"></i> Hapus
+                    <i class="ph ph-trash"></i><span class="remove-label"> Hapus</span>
                 </button>
             `;
             itemsContainer.appendChild(row);
