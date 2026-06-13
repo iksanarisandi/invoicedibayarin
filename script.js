@@ -154,15 +154,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate PDF logic
     generatePdfBtn.addEventListener('click', () => {
-        const element = document.getElementById('invoiceContent');
+        const source = document.getElementById('invoiceContent');
         const filename = (invoiceNo.value || 'invoice') + '.pdf';
 
-        // Reset sementara: hilangkan transform (scale responsif) & min-height
-        // agar konten terpaginasi natural sesuai tinggi sebenarnya saat render PDF.
-        const originalTransform = element.style.transform;
-        const originalMinHeight = element.style.minHeight;
-        element.style.transform = 'none';
-        element.style.minHeight = 'auto';
+        // Layer putih full-screen menutupi halaman selama render (z-index POSITIF maksimal,
+        // bukan di belakang body). Clone invoice diletakkan di pojok kiri-atas, lalu yang
+        // di-capture HANYA clonenya. Karena clone di (0,0) & width/windowWidth = lebar invoice,
+        // canvas pasti pas -> PDF penuh, tanpa geser / putih / konten hilang.
+        const host = document.createElement('div');
+        host.style.position = 'fixed';
+        host.style.top = '0';
+        host.style.left = '0';
+        host.style.width = '100vw';
+        host.style.height = '100vh';
+        host.style.background = '#ffffff';
+        host.style.overflow = 'auto';
+        host.style.zIndex = '2147483647';
+
+        const clone = source.cloneNode(true);
+        clone.style.transform = 'none';      // hilangkan scale responsif
+        clone.style.minHeight = 'auto';      // paginasi natural sesuai tinggi konten
+        clone.style.margin = '0';
+        clone.style.boxShadow = 'none';
+        host.appendChild(clone);
+        document.body.appendChild(host);
 
         // Options for html2pdf
         const opt = {
@@ -178,10 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
-                scrollY: 0,
+                backgroundColor: '#ffffff',
                 scrollX: 0,
-                windowWidth: 1400,
-                windowHeight: element.scrollHeight
+                scrollY: 0,
+                // width & windowWidth = lebar clone -> canvas presisi selebar dokumen
+                width: clone.offsetWidth,
+                windowWidth: clone.offsetWidth,
+                windowHeight: clone.scrollHeight
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
@@ -191,26 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
         generatePdfBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Generating...';
         generatePdfBtn.disabled = true;
 
-        const restoreElement = () => {
-            element.style.transform = originalTransform;
-            element.style.minHeight = originalMinHeight;
+        const cleanup = () => {
+            if (host.parentNode) host.parentNode.removeChild(host);
         };
 
         try {
-            html2pdf().set(opt).from(element).save().then(() => {
-                restoreElement();
+            html2pdf().set(opt).from(clone).save().then(() => {
+                cleanup();
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
                 showToast();
             }).catch(err => {
-                restoreElement();
+                cleanup();
                 console.error("PDF Generate Error:", err);
-                alert("Terjadi kesalahan atau diblokir oleh browser. Jika membuka dengan klik 2x (file:///), beberapa browser memblokir konversi PDF bergambar lokal. Saya akan menjalankan server lokal sementara agar bisa dites!");
+                alert("Terjadi kesalahan saat membuat PDF. Pastikan dibuka via server lokal (http://localhost:8000) agar gambar tidak diblokir browser.");
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
             });
         } catch (e) {
-            restoreElement();
+            cleanup();
             console.error("PDF Exception:", e);
             generatePdfBtn.innerHTML = originalText;
             generatePdfBtn.disabled = false;
