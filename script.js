@@ -157,10 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const source = document.getElementById('invoiceContent');
         const filename = (invoiceNo.value || 'invoice') + '.pdf';
 
-        // Layer putih full-screen menutupi halaman selama render (z-index POSITIF maksimal,
-        // bukan di belakang body). Clone invoice diletakkan di pojok kiri-atas, lalu yang
-        // di-capture HANYA clonenya. Karena clone di (0,0) & width/windowWidth = lebar invoice,
-        // canvas pasti pas -> PDF penuh, tanpa geser / putih / konten hilang.
+        // Layer putih full-screen menutupi halaman selama render (z-index positif maksimal).
+        // Clone invoice diletakkan di pojok kiri-atas, lalu di-render ke canvas.
         const host = document.createElement('div');
         host.style.position = 'fixed';
         host.style.top = '0';
@@ -173,38 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const clone = source.cloneNode(true);
         clone.style.transform = 'none';      // hilangkan scale responsif
-        clone.style.minHeight = 'auto';      // paginasi natural sesuai tinggi konten
+        clone.style.minHeight = 'auto';      // tinggi mengikuti konten
         clone.style.margin = '0';
         clone.style.boxShadow = 'none';
         host.appendChild(clone);
         document.body.appendChild(host);
 
-        // Options for html2pdf
-        const opt = {
-            margin: 0,
-            filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
-            // Hindari pemotongan di tengah elemen penting; potong halaman di batas yang rapi
-            pagebreak: {
-                mode: ['css', 'legacy'],
-                avoid: ['.summary-totals', '.payment-section', '.invoice-footer', '.bank-item', 'tr', 'img']
-            },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                scrollX: 0,
-                scrollY: 0,
-                // width & windowWidth = lebar clone -> canvas presisi selebar dokumen
-                width: clone.offsetWidth,
-                windowWidth: clone.offsetWidth,
-                windowHeight: clone.scrollHeight
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // Loading state
         const originalText = generatePdfBtn.innerHTML;
         generatePdfBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Generating...';
         generatePdfBtn.disabled = true;
@@ -213,25 +185,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if (host.parentNode) host.parentNode.removeChild(host);
         };
 
-        try {
-            html2pdf().set(opt).from(clone).save().then(() => {
+        // Render PDF manual & deterministik (bukan html2pdf auto-paginate):
+        //  1) html2canvas -> 1 canvas utuh dari clone
+        //  2) jsPDF menempel gambar di x:0 selebar 210mm (lebar A4) -> TIDAK MUNGKIN geser
+        //  3) paginasi eksplisit: tiap halaman baru, gambar digeser ke atas sebesar tinggi A4
+        (async () => {
+            try {
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    scrollX: 0,
+                    scrollY: 0
+                });
+
+                const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+                const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+                const pageWidth = pdf.internal.pageSize.getWidth();   // 210 mm
+                const pageHeight = pdf.internal.pageSize.getHeight(); // 297 mm
+                const imgWidth = pageWidth;                            // penuh selebar halaman
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position -= pageHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(filename);
                 cleanup();
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
                 showToast();
-            }).catch(err => {
+            } catch (err) {
                 cleanup();
                 console.error("PDF Generate Error:", err);
-                alert("Terjadi kesalahan saat membuat PDF. Pastikan dibuka via server lokal (http://localhost:8000) agar gambar tidak diblokir browser.");
+                alert("Gagal membuat PDF: " + (err && err.message ? err.message : err));
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
-            });
-        } catch (e) {
-            cleanup();
-            console.error("PDF Exception:", e);
-            generatePdfBtn.innerHTML = originalText;
-            generatePdfBtn.disabled = false;
-        }
+            }
+        })();
     });
 
     function showToast() {
