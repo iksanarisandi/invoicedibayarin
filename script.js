@@ -157,21 +157,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const element = document.getElementById('invoiceContent');
         const filename = (invoiceNo.value || 'invoice') + '.pdf';
 
+        // Reset sementara: hilangkan transform (scale responsif) & min-height
+        // agar konten terpaginasi natural sesuai tinggi sebenarnya saat render PDF.
         const originalTransform = element.style.transform;
+        const originalMinHeight = element.style.minHeight;
         element.style.transform = 'none';
+        element.style.minHeight = 'auto';
 
         // Options for html2pdf
         const opt = {
             margin: 0,
             filename: filename,
             image: { type: 'jpeg', quality: 0.98 },
+            // Hindari pemotongan di tengah elemen penting; potong halaman di batas yang rapi
+            pagebreak: {
+                mode: ['css', 'legacy'],
+                avoid: ['.summary-totals', '.payment-section', '.invoice-footer', '.bank-item', 'tr', 'img']
+            },
             html2canvas: {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 scrollY: 0,
                 scrollX: 0,
-                windowWidth: 1200
+                windowWidth: 1400,
+                windowHeight: element.scrollHeight
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
@@ -181,21 +191,26 @@ document.addEventListener('DOMContentLoaded', () => {
         generatePdfBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Generating...';
         generatePdfBtn.disabled = true;
 
+        const restoreElement = () => {
+            element.style.transform = originalTransform;
+            element.style.minHeight = originalMinHeight;
+        };
+
         try {
             html2pdf().set(opt).from(element).save().then(() => {
-                element.style.transform = originalTransform;
+                restoreElement();
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
                 showToast();
             }).catch(err => {
-                element.style.transform = originalTransform;
+                restoreElement();
                 console.error("PDF Generate Error:", err);
                 alert("Terjadi kesalahan atau diblokir oleh browser. Jika membuka dengan klik 2x (file:///), beberapa browser memblokir konversi PDF bergambar lokal. Saya akan menjalankan server lokal sementara agar bisa dites!");
                 generatePdfBtn.innerHTML = originalText;
                 generatePdfBtn.disabled = false;
             });
         } catch (e) {
-            element.style.transform = originalTransform;
+            restoreElement();
             console.error("PDF Exception:", e);
             generatePdfBtn.innerHTML = originalText;
             generatePdfBtn.disabled = false;
